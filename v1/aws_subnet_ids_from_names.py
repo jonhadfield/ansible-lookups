@@ -23,10 +23,8 @@ class LookupModule(object):
         region = terms[0]
         subnet_names = terms[1]
         vpc_conn = boto.vpc.connect_to_region(region)
-        for subnet_name in subnet_names:
-            filters = {'tag:Name': subnet_name}
-            subnet = vpc_conn.get_all_subnets(filters=filters)
-            if subnet and subnet[0]:
-                subnet_ids.append(subnet[0].id.encode('utf-8'))
+        filters = {'tag:Name': terms[1]}
+        subnets = vpc_conn.get_all_subnets(filters=filters)
+        subnet_ids = [x.id.encode('utf-8') for x in subnets]
         return subnet_ids
 
