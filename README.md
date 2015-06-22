@@ -2,7 +2,9 @@ ansible-lookups
 ========
 
 Additional ansible lookup plugins used to query external variables.
+
 v1 = compatible with ansible 1.x
+
 v2 = compatible with ansible 2.x
 
 Installation
