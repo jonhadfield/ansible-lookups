@@ -30,6 +30,7 @@ class LookupModule(LookupBase):
         region = terms[0]
         group_names = terms[1]
         conn = boto.ec2.connect_to_region(region)
+        #TODO: Use OR filter rather than making multiple calls
         for group_name in group_names:
             filters = {'group_name': group_name}
             sg = conn.get_all_security_groups(filters=filters)
