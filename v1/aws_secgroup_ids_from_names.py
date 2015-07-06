@@ -14,18 +14,15 @@ except ImportError:
 
 class LookupModule(object):
     def __init__(self, basedir=None, **kwargs):
-	            self.basedir = basedir
+        self.basedir = basedir
 
     def run(self, terms, variables=None, **kwargs):
         if isinstance(terms, basestring):
             terms = [terms]
-        sg_list = []
         region = terms[0]
         group_names = terms[1]
         conn = boto.ec2.connect_to_region(region)
-        for group_name in group_names:
-            filters = {'group_name': group_name}
-            sg = conn.get_all_security_groups(filters=filters)
-            if sg and sg[0]:
-                sg_list.append(sg[0].id)
+        filters = {'group_name': group_names}
+        sg = conn.get_all_security_groups(filters=filters)
+        sg_list = [x.id.encode('utf-8') for x in sg]
         return sg_list
