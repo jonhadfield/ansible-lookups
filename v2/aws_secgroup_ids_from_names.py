@@ -24,11 +24,11 @@ except ImportError:
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
-        if isinstance(terms, basestring):
-            terms = [terms]
         sg_list = []
-        region = terms[0]
-        group_names = terms[1]
+        region = terms[0][0]
+        group_names = terms[0][1]
+        if isinstance(group_names, basestring):
+            group_names = [group_names]
         conn = boto.ec2.connect_to_region(region)
         #TODO: Use OR filter rather than making multiple calls
         for group_name in group_names:

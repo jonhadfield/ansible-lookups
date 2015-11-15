@@ -24,8 +24,8 @@ except ImportError:
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
-        region = terms[0]
-        instance_name = terms[1]
+        region = terms[0][0]
+        instance_name = terms[0][1]
         conn = boto.ec2.connect_to_region(region)
         filters = {'tag:Name': instance_name}
         ec2_instance = conn.get_only_instances(filters=filters)

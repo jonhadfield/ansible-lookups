@@ -27,10 +27,10 @@ class LookupModule(LookupBase):
         if isinstance(terms, basestring):
             terms = [terms]
         subnet_ids = []
-        region = terms[0]
-        subnet_names = terms[1]
+        region = terms[0][0]
+        subnet_names = terms[0][1]
         vpc_conn = boto.vpc.connect_to_region(region)
-        filters = {'tag:Name': terms[1]}
+        filters = {'tag:Name': terms[0][1]}
         subnets = vpc_conn.get_all_subnets(filters=filters)
         subnet_ids = [x.id.encode('utf-8') for x in subnets]
         return subnet_ids

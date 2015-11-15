@@ -21,8 +21,8 @@ except ImportError:
 
 class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
-        region = terms[0]
-        vpc_name = terms[1]
+        region = terms[0][0]
+        vpc_name = terms[0][1]
         vpc_conn = boto.vpc.connect_to_region(region)
         filters = {'tag:Name': vpc_name}
         vpc = vpc_conn.get_all_vpcs(filters=filters)
