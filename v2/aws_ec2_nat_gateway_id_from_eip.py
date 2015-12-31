@@ -27,7 +27,10 @@ class LookupModule(LookupBase):
         region = terms[0][0]
         eip = terms[0][1]
         session = boto3.session.Session()
-        ec2_client = session.client('ec2')
+        try:
+            ec2_client = session.client('ec2')
+        except botocore.exceptions.NoRegionError:
+            raise AnsibleError("AWS region not specified.")
         result = ec2_client.describe_nat_gateways()
         nat_gateways = result.get('NatGateways')
         if nat_gateways:
