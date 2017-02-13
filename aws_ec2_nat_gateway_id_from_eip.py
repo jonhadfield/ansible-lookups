@@ -26,7 +26,7 @@ class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
         region = terms[0][0]
         eip = terms[0][1]
-        session = boto3.session.Session()
+        session = boto3.session.Session(region_name=region)
         try:
             ec2_client = session.client('ec2')
         except botocore.exceptions.NoRegionError:
