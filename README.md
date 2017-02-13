@@ -3,7 +3,7 @@ ansible-lookups
 
 Additional ansible lookup plugins used to query external variables.
 
-legacy_v1 = compatible with ansible 1.x
+v1 = compatible with legacy 1.x versions of Ansible
 
 
 Installation
