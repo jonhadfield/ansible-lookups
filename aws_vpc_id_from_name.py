@@ -1,4 +1,4 @@
-# (c) 2015, Jon Hadfield <jon@lessknown.co.uk>
+# (c) 2017, Jon Hadfield <jon@lessknown.co.uk>
 """
 Description: This lookup takes an AWS region and a vpc
 name and returns a matching VPC ID.
@@ -6,26 +6,36 @@ name and returns a matching VPC ID.
 Example Usage:
 {{ lookup('aws_vpc_id_from_name', ('eu-west-1', 'vpc1')) }}
 """
+
 from __future__ import (absolute_import, division, print_function)
+
 __metaclass__ = type
 
 from ansible.errors import *
 from ansible.plugins.lookup import LookupBase
 
 try:
-    import boto
-    import boto.vpc
+    import boto3
+    import botocore
 except ImportError:
     raise AnsibleError("aws_vpc_id_from_name lookup cannot be run without boto installed")
 
 
 class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
+        if isinstance(terms, basestring):
+            terms = [terms]
+        vpc_ids = []
         region = terms[0][0]
-        vpc_name = terms[0][1]
-        vpc_conn = boto.vpc.connect_to_region(region)
-        filters = {'tag:Name': vpc_name}
-        vpc = vpc_conn.get_all_vpcs(filters=filters)
-        if vpc and vpc[0]:
-            return [vpc[0].id.encode('utf-8')]
-        return None
+        vpc_names = terms[0][1]
+        session = boto3.session.Session(region_name=region)
+        try:
+            ec2_client = session.client('ec2')
+        except botocore.exceptions.NoRegionError:
+            raise AnsibleError("AWS region not specified.")
+        vpc_filter = [{'Name': 'tag:Name', 'Values': [vpc_names]}]
+        result = ec2_client.describe_vpcs(Filters=vpc_filter)
+        vpcs = result.get('Vpcs')
+        if vpcs:
+            vpc_ids.append(vpcs[0].get('VpcId').encode('utf-8'))
+        return vpc_ids
