@@ -23,20 +23,21 @@ except ImportError:
 
 class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
-        if isinstance(terms, basestring):
-            terms = [terms]
-        group_ids = []
         region = terms[0][0]
         group_names = terms[0][1]
+        if isinstance(group_names, basestring):
+            group_names = [group_names]
         session = boto3.session.Session(region_name=region)
         try:
             ec2_client = session.client('ec2')
         except botocore.exceptions.NoRegionError:
             raise AnsibleError("AWS region not specified.")
-        for group_name in group_names:
-            secgroup_filter = [{'Name': 'group-name', 'Values': [group_name]}]
-            result = ec2_client.describe_security_groups(Filters=secgroup_filter)
-            groups = result.get('SecurityGroups')
-            if groups:
-                group_ids.append(groups[0].get('GroupId').encode('utf-8'))
+        # for group_name in group_names:
+        secgroup_filter = [{'Name': 'group-name', 'Values': group_names}]
+        result = ec2_client.describe_security_groups(Filters=secgroup_filter)
+        groups = result.get('SecurityGroups')
+        group_ids = []
+        if groups:
+            for group in groups:
+                group_ids.append(group.get('GroupId').encode('utf-8'))
         return group_ids
