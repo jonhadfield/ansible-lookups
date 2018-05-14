@@ -16,19 +16,30 @@ from ansible.errors import *
 from ansible.plugins.lookup import LookupBase
 
 try:
-    import boto
-    import boto.ec2
+    import boto3
+    import botocore
 except ImportError:
-    raise AnsibleError("aws_ec2_instance_private_ip_from_name lookup cannot be run without boto installed")
+    raise AnsibleError("aws_ec2_instance_private_ip_from_name lookup cannot be run without boto3 installed")
 
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
         region = terms[0][0]
         instance_name = terms[0][1]
-        conn = boto.ec2.connect_to_region(region)
-        filters = {'tag:Name': instance_name}
-        ec2_instance = conn.get_only_instances(filters=filters)
-        if ec2_instance and ec2_instance[0].private_ip_address:
-            return [ec2_instance[0].private_ip_address.encode('utf-8')]
+
+        session=boto3.session.Session(region_name=region)
+
+        try:
+            ec2_client=session.client('ec2')
+        except botocore.exceptions.NoRegionError:
+            raise AnsibleError("AWS region must be specified")
+
+        instance_filter=[{'Name': 'tag:Name', 'Values': [instance_name]}]
+
+        result=ec2_client.describe_instances(Filters=instance_filter)
+
+        reservations=result.get('Reservations')
+
+        if reservations and reservations[0].get('Instances'):
+            return [reservations[0].get('Instances')[0].get('PrivateIpAddress').encode('utf-8')]
         return None
