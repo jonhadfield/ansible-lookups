@@ -40,6 +40,6 @@ class LookupModule(LookupBase):
 
         result=result.get('Reservations')
 
-        if result and result[0].get('Instances'):
+        if result and result[0].get('Instances') and result[0].get('Instances')[0].get('PublicIpAddress'):
             return [result[0].get('Instances')[0].get('PublicIpAddress').encode('utf-8')]
         return None
