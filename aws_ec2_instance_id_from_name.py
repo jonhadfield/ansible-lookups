@@ -30,7 +30,8 @@ class LookupModule(LookupBase):
         except botocore.exception.NoRegionError:
             raise AnsibleError("AWS region not specified")
 
-        instance_filter=[{'Name':'tag:Name', 'Values': [instance_name]}]
+        instance_filter=[{'Name':'tag:Name', 'Values': [instance_name]},
+                         {'Name': 'instance-state-name', 'Values': ['running']}]
 
         result=ec2_client.describe_instances(Filters=instance_filter)
 
