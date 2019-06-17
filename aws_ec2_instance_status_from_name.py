@@ -43,7 +43,7 @@ class LookupModule(LookupBase):
         result = ec2_client.describe_instances(Filters=instance_filter)
         reservations = result.get('Reservations')
 
-        if reservations:
+        if reservations and reservations[0].get('Instances')[0].get('State').get('Name'):
             return [reservations[0].get('Instances')[0].get('State').get('Name').encode('utf-8')]
         return None
 
